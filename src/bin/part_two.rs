@@ -24,10 +24,7 @@ fn run(input: &str) -> u32 {
                     }
                 }
             });
-            let first = match it.next() {
-                Some(a) => a,
-                None => panic   !("Got None"),
-            };
+            let first = it.next().expect("Should be u32");
             match it.last() {
                 Some(n) => format!("{first}{n}").parse::<u32>(),
                 None => format!("{first}{first}").parse::<u32>(),
