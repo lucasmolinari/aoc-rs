@@ -1,1 +1,0 @@
-std::iter::Map<Filter<std::slice::Iter<'_, Cube<'_>>, {closure@src\bin\part_two.rs:26:29: 26:35}>, {closure@src\bin\part_two.rs:27:26: 27:32}>
