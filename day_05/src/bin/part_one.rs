@@ -13,7 +13,31 @@ struct Almanac {
     seeds: Vec<u64>,
     maps: Vec<SeedMap>,
 }
+impl Almanac {
+    fn map_seed(&self) -> Vec<u64> {
+        let locations: Vec<u64> = self
+            .seeds
+            .iter()
+            .map(|&x| {
+                let mut current_value = x;
+                for map in &self.maps {
+                    current_value = self.convert(current_value, map);
+                }
+                current_value
+            })
+            .collect();
 
+        locations
+    }
+    fn convert(&self, val: u64, seed_map: &SeedMap) -> u64 {
+        for (src, location) in &seed_map.lines {
+            if src.contains(&val) {
+                return location.start + (val - src.start);
+            }
+        }
+        val
+    }
+}
 #[derive(Debug)]
 struct SeedMap {
     lines: Vec<(Range<u64>, Range<u64>)>,
@@ -25,9 +49,12 @@ fn main() {
     println!("{}", out);
 }
 
-fn run(input: &str) -> u32 {
+fn run(input: &str) -> u64 {
     let (_, alm) = parser(input).expect("Should parse input");
-    1
+    *alm.map_seed()
+        .iter()
+        .min()
+        .expect("Should have a min value")
 }
 
 fn parser(input: &str) -> IResult<&str, Almanac> {
@@ -51,13 +78,7 @@ fn line(input: &str) -> IResult<&str, (Range<u64>, Range<u64>)> {
         preceded(space1, complete::u64),
         preceded(space1, complete::u64),
     ))(input)?;
-    Ok((
-        input,
-        (
-            src..(src + n),
-            dest..(dest + n),
-        ),
-    ))
+    Ok((input, (src..(src + n), dest..(dest + n))))
 }
 
 #[cfg(test)]
@@ -68,37 +89,37 @@ mod test {
     fn part_one() {
         let input = "seeds: 79 14 55 13
 
-        seed-to-soil map:
-        50 98 2
-        52 50 48
-        
-        soil-to-fertilizer map:
-        0 15 37
-        37 52 2
-        39 0 15
-        
-        fertilizer-to-water map:
-        49 53 8
-        0 11 42
-        42 0 7
-        57 7 4
-        
-        water-to-light map:
-        88 18 7
-        18 25 70
-        
-        light-to-temperature map:
-        45 77 23
-        81 45 19
-        68 64 13
-        
-        temperature-to-humidity map:
-        0 69 1
-        1 0 69
-        
-        humidity-to-location map:
-        60 56 37
-        56 93 4
+seed-to-soil map:
+50 98 2
+52 50 48
+
+soil-to-fertilizer map:
+0 15 37
+37 52 2
+39 0 15
+
+fertilizer-to-water map:
+49 53 8
+0 11 42
+42 0 7
+57 7 4
+
+water-to-light map:
+88 18 7
+18 25 70
+
+light-to-temperature map:
+45 77 23
+81 45 19
+68 64 13
+
+temperature-to-humidity map:
+0 69 1
+1 0 69
+
+humidity-to-location map:
+60 56 37
+56 93 4
         ";
         let result = run(input);
         assert_eq!(35, result)
