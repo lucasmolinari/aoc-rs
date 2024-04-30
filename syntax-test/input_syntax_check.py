@@ -11,7 +11,7 @@ def pair(iterable):
     return zip_longest(a, b)
 
 
-available_days = ['01', '02', '03', '04', '05']
+available_days = ['01', '02', '03', '04', '05', '06']
 print('Available days:', available_days)
 
 day = input("Enter the day number: ")
