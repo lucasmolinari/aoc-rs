@@ -1,4 +1,4 @@
-# Advent of Code 2023/2024 - Rust Solutions
+# Advent of Code - Rust Solutions
 
 Each day has a different puzzle with two different parts. 
 The two parts typically build upon each other, with the second part often 
