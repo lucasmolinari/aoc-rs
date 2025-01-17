@@ -1,6 +1,6 @@
 use std::{
     fmt::{Display, Formatter},
-    ops::{Add, AddAssign, Index},
+    ops::{Add, AddAssign, Index, IndexMut},
 };
 
 use rayon::iter::{
@@ -31,7 +31,7 @@ impl<T> Grid<T> {
     }
 
     pub fn contains(&self, point: Coord) -> bool {
-        point.x < self.width && point.y < self.height && point.x > 0 && point.y > 0
+        point.x < self.width && point.y < self.height && point.x >= 0 && point.y >= 0
     }
 
     pub fn find(&self, item: T) -> Option<Coord>
@@ -82,6 +82,13 @@ impl<T> Index<Coord> for Grid<T> {
     }
 }
 
+impl<T> IndexMut<Coord> for Grid<T> {
+    fn index_mut(&mut self, index: Coord) -> &mut Self::Output {
+        &mut self.data[(self.width * index.y + index.x) as usize]
+    }
+}
+
+#[derive(Debug, Hash, Clone, Copy, Eq, PartialEq)]
 pub enum Direction {
     Up,
     Down,
