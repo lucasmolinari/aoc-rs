@@ -1,6 +1,6 @@
 use std::{
     fmt::{Display, Formatter},
-    ops::{Add, AddAssign, Index, IndexMut},
+    ops::{Add, AddAssign, Index, IndexMut, Sub},
 };
 
 use rayon::iter::{
@@ -57,6 +57,22 @@ impl<T> Grid<T> {
         }
     }
 
+    pub fn iter(&self) -> GridIterator<'_, T> {
+        GridIterator {
+            grid: self,
+            pos: Coord::default(),
+        }
+    }
+
+    pub fn iter_from(&self, start: Coord) -> GridIterator<'_, T> {
+        let x = start.x.clamp(0, self.width - 1);
+        let y = start.y.clamp(0, self.width - 1);
+        GridIterator {
+            grid: self,
+            pos: Coord::new(x, y),
+        }
+    }
+
     pub fn set_all<F>(&mut self, setter: F)
     where
         F: Send + Sync + Fn(Coord) -> T,
@@ -73,6 +89,7 @@ impl<T> Grid<T> {
             .collect();
     }
 }
+
 impl<T> Index<Coord> for Grid<T> {
     type Output = T;
 
@@ -85,6 +102,30 @@ impl<T> Index<Coord> for Grid<T> {
 impl<T> IndexMut<Coord> for Grid<T> {
     fn index_mut(&mut self, index: Coord) -> &mut Self::Output {
         &mut self.data[(self.width * index.y + index.x) as usize]
+    }
+}
+
+pub struct GridIterator<'a, T> {
+    grid: &'a Grid<T>,
+    pos: Coord,
+}
+
+impl<'a, T> Iterator for GridIterator<'a, T> {
+    type Item = (Coord, &'a T);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.pos.y >= self.grid.height {
+            return None;
+        }
+
+        let coord = Coord::new(self.pos.x, self.pos.y);
+        let item = self.grid.get(coord);
+        self.pos.x += 1;
+        if self.pos.x >= self.grid.width {
+            self.pos.x = 0;
+            self.pos.y += 1;
+        }
+        Some((coord, item))
     }
 }
 
@@ -143,5 +184,15 @@ impl AddAssign for Coord {
     fn add_assign(&mut self, rhs: Self) {
         self.x += rhs.x;
         self.y += rhs.y;
+    }
+}
+impl Sub for Coord {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Coord {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+        }
     }
 }
