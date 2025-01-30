@@ -1,6 +1,6 @@
 use std::{
     fmt::{Display, Formatter},
-    ops::{Add, AddAssign, Index, IndexMut, Sub},
+    ops::{Add, AddAssign, Index, IndexMut, Sub, SubAssign},
 };
 
 use rayon::iter::{
@@ -194,5 +194,12 @@ impl Sub for Coord {
             x: self.x - rhs.x,
             y: self.y - rhs.y,
         }
+    }
+}
+
+impl SubAssign for Coord {
+    fn sub_assign(&mut self, rhs: Self) {
+        self.x -= rhs.x;
+        self.y -= rhs.y;
     }
 }
